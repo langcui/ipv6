@@ -10,77 +10,12 @@ int GetIpUnion(socketaddress &sockAddr, int domain, string sIp, int port)
     struct sockaddr_in6 in6;
     in6.sin6_addr  = ip;
     in6.sin6_family = AF_INET6;
+    in6.sin6_len = sizeof(struct sockaddr_in6);
+    in6.sin6_scope_id = 0;
+    in6.sin6_flowinfo = 0;
     
     sockAddr.setInet6(in6);
     sockAddr.setPort(port);
-    
-
-    /*
-
-    sockaddrunion.sin6 = in6;
-
-    unsigned char buf[sizeof(struct in6_addr)];
-    char str[INET6_ADDRSTRLEN];
-    int s = inet_pton(domain, sIp.c_str(), buf);
-    if (s <= 0) {
-        if (s == 0)
-            fprintf(stderr, "Not in presentation format");
-        else
-            perror("inet_pton");
-        exit(EXIT_FAILURE);
-    }
-
-    if (inet_ntop(domain, buf, str, INET6_ADDRSTRLEN) == NULL) {
-        perror("inet_ntop");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("inet_ntop %s, buf[", str);
-    for(int i = 0; i < sizeof(struct in6_addr); ++i)
-    {
-        printf("%0x,", buf[i]);
-    }
-    printf("].\n");
-
-    sockaddr_in6 addr6;
-    printf("addr6.sin6_scope_id[%d].\n", addr6.sin6_scope_id);
-    addr6.sin6_len = sizeof(struct sockaddr_in6);
-    addr6.sin6_scope_id = 0;
-    addr6.sin6_family = AF_INET6;
-    addr6.sin6_flowinfo = 0;
-
-
-    memcpy(&addr6.sin6_addr, buf, sizeof(struct in6_addr));
-    sockAddr.setInet6(addr6);
-    sockAddr.setPort(port);
-    printf("init getIpStr[%s].\n", sockAddr.getIpStr().c_str());
-*/
-    /*
-
-       if(AF_INET == domain)
-       {
-       sockaddr_in addr4;
-       addr4.sin_family = AF_INET; 
-       memcpy(&addr4.sin_addr, buf, sizeof(struct in_addr));
-       sockAddr.setInet(addr4);
-       sockAddr.setPort(port);
-       }
-
-       if(AF_INET6 == domain)
-       {
-       sockaddr_in6 addr6;
-    //addr6.sin6_len = sizeof(struct sockaddr_in6);
-    printf("addr6.sin6_scope_id[%d].\n", addr6.sin6_scope_id);
-    addr6.sin6_len = sizeof(sockaddr_in6);
-    addr6.sin6_scope_id = 0;
-    addr6.sin6_family = AF_INET6;
-    addr6.sin6_flowinfo = 0;
-    memcpy(&addr6.sin6_addr, buf, sizeof(struct in6_addr));
-    sockAddr.setInet6(addr6);
-    sockAddr.setPort(port);
-    printf("init getIpStr[%s].\n", sockAddr.getIpStr().c_str());
-    }
-     */
 
     return 0;
 }
