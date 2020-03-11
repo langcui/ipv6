@@ -2,6 +2,44 @@
 
 int GetIpUnion(socketaddress &sockAddr, int domain, string sIp, int port)
 {
+    char *addr1 = strdup(sIp.c_str());
+
+    if(AF_INET == domain)
+    {
+        struct  in_addr in4;
+        inet_pton(AF_INET, addr1, &in4);
+        
+        sockaddr_in addr4;
+        addr4.sin_family = AF_INET;
+        addr4.sin_addr = in4;
+
+        sockAddr.setInet(addr4);
+        sockAddr.setPort(port);
+    }
+
+    if(AF_INET6 == domain)
+    {
+        struct in6_addr ip;
+        inet_pton(AF_INET6, addr1, &ip);
+
+        struct sockaddr_in6 in6;
+        in6.sin6_addr  = ip;
+        in6.sin6_family = AF_INET6;
+        in6.sin6_scope_id = 0;
+        in6.sin6_flowinfo = 0;
+        // in6.sin6_len = sizeof(struct sockaddr_in6); 安卓没有这个值
+
+        sockAddr.setInet6(in6);
+        sockAddr.setPort(port);
+    }
+
+    return 0;
+}
+
+
+
+int GetIpUnionOld(socketaddress &sockAddr, int domain, string sIp, int port)
+{
     unsigned char buf[sizeof(struct in6_addr)];
     char str[INET6_ADDRSTRLEN];
     int s = inet_pton(domain, sIp.c_str(), buf);
@@ -46,9 +84,9 @@ int GetIpUnion(socketaddress &sockAddr, int domain, string sIp, int port)
 
 int TestConnect( socketaddress sockAddr)
 {
-     int family[] = {AF_INET, AF_INET6};
+    int family[] = {AF_INET, AF_INET6};
     // int family[] = {AF_INET6, AF_INET};
-     int sockettype[] = {SOCK_STREAM, SOCK_DGRAM};
+    int sockettype[] = {SOCK_STREAM, SOCK_DGRAM};
     //int sockettype[] = {SOCK_DGRAM, SOCK_STREAM};
 
     for(int i = 0; i < sizeof(family)/sizeof(int); ++i)
@@ -63,27 +101,27 @@ int TestConnect( socketaddress sockAddr)
             int fd = socket(family[i], sockettype[j], 0);
             printf("socket:fd[%d], errno[%d], strerror[%s].\n", 0, errno, strerror(errno));
 
-           int fflags = fcntl(fd, F_GETFL);
-	printf("fcntl get fflags[%d], O_NONBLOCK[%0x].\n", fflags, O_NONBLOCK);
-	fflags &= ~O_NONBLOCK;
-	fflags |= MSG_NOSIGNAL;
-	int status = fcntl(fd, F_SETFL, fflags);
-	printf("fcntl return[%d], set fflags[%d], ~O_NONBLOCK[%0x].\n", status, fflags, ~O_NONBLOCK);
-	signal(SIGPIPE, SIG_IGN);
+            int fflags = fcntl(fd, F_GETFL);
+            printf("fcntl get fflags[%d], O_NONBLOCK[%0x].\n", fflags, O_NONBLOCK);
+            fflags &= ~O_NONBLOCK;
+            fflags |= MSG_NOSIGNAL;
+            int status = fcntl(fd, F_SETFL, fflags);
+            printf("fcntl return[%d], set fflags[%d], ~O_NONBLOCK[%0x].\n", status, fflags, ~O_NONBLOCK);
+            signal(SIGPIPE, SIG_IGN);
             int ret = connect(fd, sockAddr.getSockAddr(), sockAddr.getSockLen());
             printf("connect[%d][%d], [%s].\n", ret, errno, strerror(errno));
             char buf[100] = {0};
             if(sockettype[j] == SOCK_STREAM)
             {
-	    printf("send i[%d], j[%d].\n", i, j );
+                printf("send i[%d], j[%d].\n", i, j );
                 int size = send(fd, buf, 100, 0);
-	    printf("send return[%d] i[%d], j[%d].\n", size,  i, j );
+                printf("send return[%d] i[%d], j[%d].\n", size,  i, j );
                 printf("send[%d][%d], [%s].\n", size, errno, strerror(errno));
             } else 
             {
-	    printf("sendto i[%d], j[%d].\n", i, j );
+                printf("sendto i[%d], j[%d].\n", i, j );
                 int size = sendto(fd, buf, 100, 0, sockAddr.getSockAddr(), sockAddr.getSockLen());
-	    printf("sendto return[%d] i[%d], j[%d].\n", size,  i, j );
+                printf("sendto return[%d] i[%d], j[%d].\n", size,  i, j );
                 printf("sendto[%d][%d], [%s].\n", size, errno, strerror(errno));
             }
 

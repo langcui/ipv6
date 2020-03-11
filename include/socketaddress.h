@@ -11,6 +11,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
+#include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
+
+
+
 using namespace std;
 
 union ipaddr_union {
