@@ -99,8 +99,9 @@ int main(int argc, char *argv[])
     domain =  socketaddress::isIpv6(sIp) ? AF_INET6 : AF_INET;
     printf("input ip[%s], port[%d], domain[%d].\n", sIp.c_str(), port, domain);
 
-    GetIpUnion(sockAddr, domain, sIp, port);
-    printf("socketaddress:ai_family[%d], port[%d][%s], ip[%s].\n"
+    sockAddr.setsockaddrsv46(sIp, port);
+    // GetIpUnion(sockAddr, domain, sIp, port);
+    printf("socketaddress:ai_family[%d], port[%d][%s], getIpStr[%s].\n"
             , sockAddr.getSockAddrFamily(), sockAddr.getPort(), sockAddr.getPortStr().c_str(), sockAddr.getIpStr().c_str());
 
     TestConnect(sockAddr);

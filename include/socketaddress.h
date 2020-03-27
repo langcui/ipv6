@@ -54,6 +54,7 @@ class socketaddress
             mIsSupportIPv6 = false;
             memset(&mAddr,0,sizeof(ipaddr_union));
         }
+        void setsockaddrsv46(std::string sIp, uint32_t port);
         void setInet(sockaddr_in addr4);
         void setInet6(sockaddr_in6 addr6);
         void setPort(uint16_t port);

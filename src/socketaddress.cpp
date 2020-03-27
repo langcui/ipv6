@@ -1,4 +1,61 @@
 #include "../include/socketaddress.h"
+
+void socketaddress::setsockaddrsv46(std::string sIp, uint32_t port)
+{
+    if(sIp.empty() || (sIp == "0"))
+    {
+        sIp = "0.0.0.0";
+    }
+
+#ifdef __APPLE__  // ios 需要将ipv4地址转成ipv6地址: ::ffff:220.181.38.148
+    if( ! isIpv6(sIp) )
+    {
+        sIp = "::ffff:" + sIp;
+    }
+#endif
+
+    int domain = isIpv6(sIp) ? AF_INET6 : AF_INET;
+    char *addr1 = strdup(sIp.c_str());
+    if(AF_INET == domain)
+    {
+        struct  in_addr in4;
+        memset(&in4, sizeof(in4), 0);
+        int iRet = inet_pton(AF_INET, addr1, &in4);
+        printf("inet_pton return[%d], AF_INET, addr1[%s].\n", iRet, addr1);
+
+        sockaddr_in addr4;
+        memset(&addr4, sizeof(addr4), 0);
+        addr4.sin_family = AF_INET;
+        addr4.sin_addr = in4;
+
+        setInet(addr4);
+        setPort(port);
+    }
+
+    if(AF_INET6 == domain)
+    {
+        struct in6_addr in6;
+        memset(&in6, sizeof(in6), 0);
+        int iRet = inet_pton(AF_INET6, addr1, &in6);
+        printf("inet_pton return[%d], AF_INET, addr1[%s].\n", iRet, addr1);
+
+        struct sockaddr_in6 addr6;
+        memset(&addr6, sizeof(addr6), 0);
+        addr6.sin6_addr  = in6;
+        addr6.sin6_family = AF_INET6;
+        addr6.sin6_scope_id = 0;
+        addr6.sin6_flowinfo = 0;
+
+#ifdef __APPLE__
+        addr6.sin6_len = sizeof(struct sockaddr_in6); 安卓没有这个值
+#endif
+
+        setInet6(addr6);
+        setPort(port);
+    }
+}
+
+
 void socketaddress::setInet(sockaddr_in addr4)
 {
     mAddr.sin = addr4;
